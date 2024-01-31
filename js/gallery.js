@@ -66,13 +66,11 @@ const images = [
 
 const gallery = document.querySelector('.gallery');
 
-let modal;
-
 const markup = images
   .map(
     ({ preview, original, description }) =>
       `<li class="gallery-item">
-  <a class="gallery-link" href="large-image.jpg">
+  <a class="gallery-link" href="${original}">
     <img
       class="gallery-image"
       src="${preview}"
@@ -88,24 +86,29 @@ gallery.insertAdjacentHTML('beforeend', markup);
 
 gallery.addEventListener('click', onGalleryItemClick);
 
-gallery.addEventListener('keydown', onEscapeClick);
-
 function onGalleryItemClick(e) {
   e.preventDefault();
   if (!e.target.classList.contains('gallery-image')) {
     return;
   }
-  modal = basicLightbox.create(
-    `
-	<img src="${e.target.dataset.source}" alt="${e.target.alt}" />
-`
+
+  const modal = basicLightbox.create(
+    `<img src="${e.target.dataset.source}" alt="${e.target.alt}" />`,
+    {
+      onShow: modal => {
+        document.addEventListener('keydown', onEscapeClick);
+      },
+      onClose: modal => {
+        document.removeEventListener('keydown', onEscapeClick);
+      },
+    }
   );
 
   modal.show();
-}
 
-function onEscapeClick(e) {
-  if (e.key === 'Escape') {
-    modal.close();
+  function onEscapeClick(e) {
+    if (e.key === 'Escape') {
+      modal.close();
+    }
   }
 }
